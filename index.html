@@ -653,6 +653,7 @@
                         <input type="month" id="bonusMonth">
                     </div>
                     <button class="btn" onclick="addBonus(event)">➕ Add Bonus</button>
+                    <button class="btn btn-secondary" onclick="testToast()" style="margin-left: 10px;">🧪 Test Toast</button>
                     
                     <div id="bonusList" style="margin-top: 20px;">
                         <!-- Bonus entries will appear here -->
@@ -746,6 +747,18 @@
         function resetButton(button, originalText) {
             button.textContent = originalText;
             button.disabled = false;
+        }
+
+        // Test function to check if showToast works
+        function testToast() {
+            console.log('Testing showToast function...');
+            if (typeof showToast === 'function') {
+                showToast('✅ Toast test successful!', 'success');
+                console.log('showToast function works!');
+            } else {
+                console.error('showToast function not found!');
+                alert('showToast function not found!');
+            }
         }
 
         // Application State
