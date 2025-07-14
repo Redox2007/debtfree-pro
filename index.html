@@ -558,7 +558,7 @@
                             <label for="promoEndDate">Promotional Rate End Date</label>
                             <input type="date" id="promoEndDate">
                         </div>
-                        <button class="btn" onclick="addCreditCard()">➕ Add Card</button>
+                        <button class="btn" onclick="addCreditCard(event)">➕ Add Card</button>
                     </div>
                 </div>
             </div>
@@ -584,7 +584,7 @@
                     <label for="variableExpenses">Variable Expenses (Food, entertainment, etc.)</label>
                     <input type="number" id="variableExpenses" placeholder="e.g., 1500.00" step="0.01">
                 </div>
-                <button class="btn" onclick="saveBudget()">💾 Save Budget</button>
+                <button class="btn" onclick="saveBudget(event)">💾 Save Budget</button>
             </div>
         </div>
 
@@ -652,7 +652,7 @@
                         <label for="bonusMonth">Bonus Month</label>
                         <input type="month" id="bonusMonth">
                     </div>
-                    <button class="btn" onclick="addBonus()">➕ Add Bonus</button>
+                    <button class="btn" onclick="addBonus(event)">➕ Add Bonus</button>
                     
                     <div id="bonusList" style="margin-top: 20px;">
                         <!-- Bonus entries will appear here -->
@@ -811,6 +811,7 @@
             updateTrackerCardList();
             updateMonthOptions();
             generatePlan();
+            updateBonusList(); // Add bonus list update
             
             // Update budget fields
             document.getElementById('monthlyIncome').value = appData.budget.income;
@@ -1015,12 +1016,12 @@
                         <div class="form-group">
                             <label>Current Balance</label>
                             <input type="number" value="${card.balance}" step="0.01" 
-                                   onchange="updateCardBalance(${card.id}, this.value)">
+                                   onchange="updateCardBalance(${card.id}, this.value, event)">
                         </div>
                         <div class="form-group">
                             <label>Last Payment Made</label>
                             <input type="number" placeholder="Enter payment amount" step="0.01" 
-                                   onchange="recordPayment(${card.id}, this.value)">
+                                   onchange="recordPayment(${card.id}, this.value, event)">
                         </div>
                     </div>
                 </div>
