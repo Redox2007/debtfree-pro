@@ -5,7 +5,6 @@ const urlsToCache = [
   './manifest.json'
 ];
 
-// Install event
 self.addEventListener('install', function(event) {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -15,7 +14,6 @@ self.addEventListener('install', function(event) {
   );
 });
 
-// Fetch event
 self.addEventListener('fetch', function(event) {
   event.respondWith(
     caches.match(event.request)
