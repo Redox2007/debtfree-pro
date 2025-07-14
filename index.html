@@ -1337,10 +1337,175 @@
             const monthName = new Date(month + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
             showToast(`✅ Bonus of ${amount.toLocaleString()} added for ${monthName}!`, 'success');
 
-            // Reset button
+        // Reset button helper
+        function resetButton(button, originalText) {
+            button.textContent = originalText;
+            button.disabled = false;
+        }
+
+        // Enhanced clear form
+        function clearForm() {
+            document.getElementById('cardName').value = '';
+            document.getElementById('cardBalance').value = '';
+            document.getElementById('cardAPR').value = '';
+            document.getElementById('cardMinPayment').value = '';
+            document.getElementById('cardType').value = 'personal';
+            document.getElementById('promoRate').value = 'no';
+            document.getElementById('promoEndDate').value = '';
+            document.getElementById('promoEndGroup').style.display = 'none';
+        }
+
+        // Toast notification system
+        function showToast(message, type = 'info', duration = 3000) {
+            // Remove existing toasts
+            const existingToasts = document.querySelectorAll('.toast');
+            existingToasts.forEach(toast => toast.remove());
+
+            // Create toast
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = message;
+            
+            // Style the toast
+            Object.assign(toast.style, {
+                position: 'fixed',
+                top: '20px',
+                right: '20px',
+                padding: '15px 20px',
+                borderRadius: '8px',
+                color: 'white',
+                fontWeight: '600',
+                zIndex: '10000',
+                maxWidth: '400px',
+                wordWrap: 'break-word',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                transform: 'translateX(100%)',
+                transition: 'transform 0.3s ease'
+            });
+
+            // Set background color based on type
+            switch(type) {
+                case 'success':
+                    toast.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+                    break;
+                case 'error':
+                    toast.style.background = 'linear-gradient(135deg, #dc3545, #e74c3c)';
+                    break;
+                case 'warning':
+                    toast.style.background = 'linear-gradient(135deg, #ffc107, #fd7e14)';
+                    break;
+                default:
+                    toast.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+            }
+
+            // Add to page
+            document.body.appendChild(toast);
+
+            // Animate in
             setTimeout(() => {
-                resetButton(addButton, originalText);
-            }, 500);
+                toast.style.transform = 'translateX(0)';
+            }, 100);
+
+            // Auto remove
+            setTimeout(() => {
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, duration);
+
+            // Click to dismiss
+            toast.addEventListener('click', () => {
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            });
+        }
+
+        // Show card payoff celebration
+        function showCardPayoffCelebration(card) {
+            const overlay = document.createElement('div');
+            overlay.className = 'celebration-overlay';
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 20000;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            `;
+
+            overlay.innerHTML = `
+                <div style="
+                    background: white;
+                    padding: 40px;
+                    border-radius: 20px;
+                    text-align: center;
+                    max-width: 500px;
+                    margin: 20px;
+                    transform: scale(0.8);
+                    transition: transform 0.3s ease;
+                ">
+                    <div style="font-size: 4em; margin-bottom: 20px;">🎉</div>
+                    <h2 style="color: #28a745; margin-bottom: 15px;">CARD PAID OFF!</h2>
+                    <h3 style="margin-bottom: 15px; color: #2c3e50;">${card.name}</h3>
+                    <p style="color: #666; margin-bottom: 20px;">Congratulations! You've completely eliminated this debt!</p>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left;">
+                        <strong>Original Balance:</strong> ${card.initialBalance.toLocaleString()}<br>
+                        <strong>Interest Rate:</strong> ${card.actualAPR}%<br>
+                        <strong>Monthly Interest Saved:</strong> ${((card.initialBalance * card.actualAPR / 100) / 12).toFixed(2)}
+                    </div>
+                    <button onclick="closeCelebration(this)" style="
+                        background: linear-gradient(135deg, #28a745, #20c997);
+                        color: white;
+                        padding: 12px 25px;
+                        border: none;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-size: 1em;
+                        font-weight: 600;
+                    ">On to the Next One! 🚀</button>
+                </div>
+            `;
+
+            document.body.appendChild(overlay);
+            
+            // Animate in
+            setTimeout(() => {
+                overlay.style.opacity = '1';
+                overlay.querySelector('div > div').style.transform = 'scale(1)';
+            }, 100);
+
+            // Auto-close after 5 seconds
+            setTimeout(() => {
+                if (overlay.parentNode) {
+                    closeCelebration(overlay.querySelector('button'));
+                }
+            }, 5000);
+        }
+
+        // Close celebration overlay
+        function closeCelebration(button) {
+            const overlay = button.closest('.celebration-overlay') || button.parentElement.parentElement;
+            if (overlay) {
+                overlay.style.opacity = '0';
+                setTimeout(() => {
+                    if (overlay.parentNode) {
+                        overlay.parentNode.removeChild(overlay);
+                    }
+                }, 300);
+            }
         }
 
         // Update bonus list display
