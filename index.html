@@ -360,7 +360,62 @@
             font-weight: bold;
         }
 
-        /* Responsive */
+        /* Bonus List Styles */
+        .bonus-item {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .bonus-item:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .bonus-content {
+            flex: 1;
+        }
+
+        .bonus-title {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .bonus-details {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .bonus-amount {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #28a745;
+            text-align: right;
+            margin-right: 15px;
+        }
+
+        .bonus-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .bonus-empty {
+            text-align: center;
+            color: #666;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 2px dashed #ddd;
+        }
         @media (max-width: 768px) {
             .app-container {
                 padding: 10px;
@@ -598,6 +653,10 @@
                         <input type="month" id="bonusMonth">
                     </div>
                     <button class="btn" onclick="addBonus()">➕ Add Bonus</button>
+                    
+                    <div id="bonusList" style="margin-top: 20px;">
+                        <!-- Bonus entries will appear here -->
+                    </div>
                 </div>
 
                 <div class="settings-section">
@@ -1220,17 +1279,149 @@
             }
         }
 
-        // Add bonus
+        // Enhanced add bonus with better UX
         function addBonus() {
-            const amount = parseFloat(document.getElementById('bonusAmount').value);
-            const month = document.getElementById('bonusMonth').value;
+            const amountInput = document.getElementById('bonusAmount');
+            const monthInput = document.getElementById('bonusMonth');
+            const amount = parseFloat(amountInput.value);
+            const month = monthInput.value;
+
+            // Show loading state
+            const addButton = event.target;
+            const originalText = addButton.textContent;
+            addButton.textContent = '⏳ Adding Bonus...';
+            addButton.disabled = true;
+
+            // Validation
+            if (!amount || amount <= 0) {
+                showToast('Please enter a valid bonus amount', 'error');
+                resetButton(addButton, originalText);
+                return;
+            }
+
+            if (!month) {
+                showToast('Please select a bonus month', 'error');
+                resetButton(addButton, originalText);
+                return;
+            }
+
+            // Check if bonus already exists for this month
+            const existingBonus = appData.bonuses.find(bonus => bonus.month === month);
+            if (existingBonus) {
+                showToast('A bonus already exists for this month. Delete it first to add a new one.', 'warning');
+                resetButton(addButton, originalText);
+                return;
+            }
+
+            // Create bonus object
+            const bonus = {
+                id: Date.now(),
+                amount: amount,
+                month: month,
+                createdDate: new Date().toISOString().split('T')[0]
+            };
+
+            // Add bonus
+            appData.bonuses.push(bonus);
+            saveData();
+
+            // Clear form
+            amountInput.value = '';
+            monthInput.value = '';
+
+            // Update display
+            updateBonusList();
+
+            // Show success message
+            const monthName = new Date(month + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            showToast(`✅ Bonus of ${amount.toLocaleString()} added for ${monthName}!`, 'success');
+
+            // Reset button
+            setTimeout(() => {
+                resetButton(addButton, originalText);
+            }, 500);
+        }
+
+        // Update bonus list display
+        function updateBonusList() {
+            const container = document.getElementById('bonusList');
             
-            if (amount && month) {
-                appData.bonuses.push({ amount, month });
+            if (!container) return;
+
+            if (!appData.bonuses || appData.bonuses.length === 0) {
+                container.innerHTML = `
+                    <div class="bonus-empty">
+                        <div style="font-size: 2em; margin-bottom: 10px;">💰</div>
+                        <p>No bonus payments scheduled yet.</p>
+                        <p style="font-size: 0.9em; margin-top: 5px;">Add expected bonuses above to include them in your debt elimination plan.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sort bonuses by month
+            const sortedBonuses = [...appData.bonuses].sort((a, b) => new Date(a.month) - new Date(b.month));
+
+            container.innerHTML = sortedBonuses.map(bonus => {
+                const bonusDate = new Date(bonus.month + '-01');
+                const monthName = bonusDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                const isUpcoming = bonusDate >= new Date();
+                const daysSinceCreated = Math.floor((new Date() - new Date(bonus.createdDate)) / (1000 * 60 * 60 * 24));
+
+                return `
+                    <div class="bonus-item">
+                        <div class="bonus-content">
+                            <div class="bonus-title">💰 ${monthName} Bonus</div>
+                            <div class="bonus-details">
+                                ${isUpcoming ? `Scheduled for ${monthName}` : `Was scheduled for ${monthName}`} • 
+                                Added ${daysSinceCreated === 0 ? 'today' : `${daysSinceCreated} days ago`}
+                            </div>
+                        </div>
+                        <div class="bonus-amount">${bonus.amount.toLocaleString()}</div>
+                        <div class="bonus-actions">
+                            <button class="btn btn-secondary" onclick="editBonus(${bonus.id})" style="padding: 8px 15px; font-size: 0.9em;">✏️ Edit</button>
+                            <button class="btn btn-danger" onclick="deleteBonus(${bonus.id})" style="padding: 8px 15px; font-size: 0.9em;">🗑️ Delete</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Edit bonus
+        function editBonus(bonusId) {
+            const bonus = appData.bonuses.find(b => b.id === bonusId);
+            if (!bonus) return;
+
+            const newAmount = prompt('Enter new bonus amount:', bonus.amount);
+            if (newAmount === null) return; // User cancelled
+
+            const amount = parseFloat(newAmount);
+            if (!amount || amount <= 0) {
+                showToast('Please enter a valid bonus amount', 'error');
+                return;
+            }
+
+            // Update bonus
+            bonus.amount = amount;
+            saveData();
+            updateBonusList();
+
+            const monthName = new Date(bonus.month + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            showToast(`✅ ${monthName} bonus updated to ${amount.toLocaleString()}`, 'success');
+        }
+
+        // Delete bonus
+        function deleteBonus(bonusId) {
+            const bonus = appData.bonuses.find(b => b.id === bonusId);
+            if (!bonus) return;
+
+            const monthName = new Date(bonus.month + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            
+            if (confirm(`Are you sure you want to delete the ${monthName} bonus of ${bonus.amount.toLocaleString()}?`)) {
+                appData.bonuses = appData.bonuses.filter(b => b.id !== bonusId);
                 saveData();
-                alert('Bonus added successfully!');
-                document.getElementById('bonusAmount').value = '';
-                document.getElementById('bonusMonth').value = '';
+                updateBonusList();
+                showToast(`✅ ${monthName} bonus deleted successfully`, 'success');
             }
         }
 
