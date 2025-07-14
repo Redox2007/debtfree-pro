@@ -1,13 +1,11 @@
 {
   "name": "DebtFree Pro - Credit Card Debt Elimination",
   "short_name": "DebtFree Pro",
-  "description": "Personal credit card debt elimination tracker and planner",
+  "description": "Personal credit card debt elimination tracker",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#667eea",
   "theme_color": "#667eea",
-  "orientation": "portrait-primary",
-  "categories": ["finance", "productivity", "lifestyle"],
   "icons": [
     {
       "src": "https://via.placeholder.com/192x192/667eea/ffffff?text=💳",
@@ -16,7 +14,7 @@
     },
     {
       "src": "https://via.placeholder.com/512x512/667eea/ffffff?text=💳",
-      "sizes": "512x512",
+      "sizes": "512x512", 
       "type": "image/png"
     }
   ]
