@@ -465,15 +465,22 @@
         <div class="app-header">
             <h1>💳 DebtFree Pro</h1>
             <p>Your Personal Credit Card Debt Elimination Assistant</p>
+            <!-- Temporary debug buttons -->
+            <div style="margin-top: 15px;">
+                <button onclick="debugTabs()" style="margin: 5px; padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px;">🐛 Debug Tabs</button>
+                <button onclick="switchToTab('setup')" style="margin: 5px; padding: 5px 10px; background: #28a745; color: white; border: none; border-radius: 4px;">→ Setup</button>
+                <button onclick="switchToTab('settings')" style="margin: 5px; padding: 5px 10px; background: #ffc107; color: black; border: none; border-radius: 4px;">→ Settings</button>
+                <button onclick="testToast()" style="margin: 5px; padding: 5px 10px; background: #667eea; color: white; border: none; border-radius: 4px;">🧪 Test Toast</button>
+            </div>
         </div>
 
         <!-- Navigation -->
         <div class="nav-tabs">
-            <button class="nav-tab active" data-tab="dashboard">📊 Dashboard</button>
-            <button class="nav-tab" data-tab="setup">⚙️ Setup</button>
-            <button class="nav-tab" data-tab="tracker">📈 Tracker</button>
-            <button class="nav-tab" data-tab="plan">📋 Plan</button>
-            <button class="nav-tab" data-tab="settings">🔧 Settings</button>
+            <button class="nav-tab active" onclick="switchToTab('dashboard')">📊 Dashboard</button>
+            <button class="nav-tab" onclick="switchToTab('setup')">⚙️ Setup</button>
+            <button class="nav-tab" onclick="switchToTab('tracker')">📈 Tracker</button>
+            <button class="nav-tab" onclick="switchToTab('plan')">📋 Plan</button>
+            <button class="nav-tab" onclick="switchToTab('settings')">🔧 Settings</button>
         </div>
 
         <!-- Dashboard Tab -->
@@ -671,7 +678,52 @@
     </div>
 
     <script>
-        // Toast notification system (defined first so other functions can use it)
+        // Core functions defined first (so onclick attributes can use them)
+        
+        // Manual tab switching function
+        function switchToTab(tabName) {
+            console.log('Switching to tab:', tabName);
+            
+            try {
+                // Remove active from all tabs
+                const allTabs = document.querySelectorAll('.nav-tab');
+                const allContents = document.querySelectorAll('.tab-content');
+                
+                console.log('Found', allTabs.length, 'tab buttons');
+                console.log('Found', allContents.length, 'tab contents');
+                
+                allTabs.forEach(tab => tab.classList.remove('active'));
+                allContents.forEach(content => content.classList.remove('active'));
+                
+                // Add active to clicked tab
+                const clickedTab = event ? event.target : document.querySelector(`button[onclick*="${tabName}"]`);
+                if (clickedTab) {
+                    clickedTab.classList.add('active');
+                    console.log('Activated tab button for:', tabName);
+                }
+                
+                // Show target content
+                const targetContent = document.getElementById(tabName);
+                if (targetContent) {
+                    targetContent.classList.add('active');
+                    console.log('Activated tab content for:', tabName);
+                    
+                    // Show success message if showToast is available
+                    if (typeof showToast === 'function') {
+                        showToast(`✅ Switched to ${tabName} tab`, 'success', 1500);
+                    }
+                } else {
+                    console.error('Could not find content element with ID:', tabName);
+                    alert('Could not find tab content: ' + tabName);
+                }
+                
+            } catch (error) {
+                console.error('Error switching tabs:', error);
+                alert('Error switching tabs: ' + error.message);
+            }
+        }
+
+        // Toast notification system (defined early so other functions can use it)
         function showToast(message, type = 'info', duration = 3000) {
             // Remove existing toasts
             const existingToasts = document.querySelectorAll('.toast');
@@ -759,6 +811,23 @@
                 console.error('showToast function not found!');
                 alert('showToast function not found!');
             }
+        }
+
+        // Debug function to test tab switching
+        function debugTabs() {
+            console.log('=== TAB DEBUG INFO ===');
+            const tabButtons = document.querySelectorAll('.nav-tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            console.log('Tab buttons found:', tabButtons.length);
+            tabButtons.forEach((btn, i) => {
+                console.log(`Tab ${i}:`, btn.textContent, 'onclick:', btn.getAttribute('onclick'), 'active:', btn.classList.contains('active'));
+            });
+            
+            console.log('Tab contents found:', tabContents.length);
+            tabContents.forEach((content, i) => {
+                console.log(`Content ${i}:`, content.id, 'active:', content.classList.contains('active'));
+            });
         }
 
         // Application State
