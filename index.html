@@ -670,6 +670,84 @@
     </div>
 
     <script>
+        // Toast notification system (defined first so other functions can use it)
+        function showToast(message, type = 'info', duration = 3000) {
+            // Remove existing toasts
+            const existingToasts = document.querySelectorAll('.toast');
+            existingToasts.forEach(toast => toast.remove());
+
+            // Create toast
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = message;
+            
+            // Style the toast
+            Object.assign(toast.style, {
+                position: 'fixed',
+                top: '20px',
+                right: '20px',
+                padding: '15px 20px',
+                borderRadius: '8px',
+                color: 'white',
+                fontWeight: '600',
+                zIndex: '10000',
+                maxWidth: '400px',
+                wordWrap: 'break-word',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                transform: 'translateX(100%)',
+                transition: 'transform 0.3s ease'
+            });
+
+            // Set background color based on type
+            switch(type) {
+                case 'success':
+                    toast.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+                    break;
+                case 'error':
+                    toast.style.background = 'linear-gradient(135deg, #dc3545, #e74c3c)';
+                    break;
+                case 'warning':
+                    toast.style.background = 'linear-gradient(135deg, #ffc107, #fd7e14)';
+                    break;
+                default:
+                    toast.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+            }
+
+            // Add to page
+            document.body.appendChild(toast);
+
+            // Animate in
+            setTimeout(() => {
+                toast.style.transform = 'translateX(0)';
+            }, 100);
+
+            // Auto remove
+            setTimeout(() => {
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, duration);
+
+            // Click to dismiss
+            toast.addEventListener('click', () => {
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            });
+        }
+
+        // Reset button helper
+        function resetButton(button, originalText) {
+            button.textContent = originalText;
+            button.disabled = false;
+        }
+
         // Application State
         let appData = {
             cards: [],
@@ -1337,12 +1415,6 @@
             const monthName = new Date(month + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
             showToast(`✅ Bonus of ${amount.toLocaleString()} added for ${monthName}!`, 'success');
 
-        // Reset button helper
-        function resetButton(button, originalText) {
-            button.textContent = originalText;
-            button.disabled = false;
-        }
-
         // Enhanced clear form
         function clearForm() {
             document.getElementById('cardName').value = '';
@@ -1353,78 +1425,6 @@
             document.getElementById('promoRate').value = 'no';
             document.getElementById('promoEndDate').value = '';
             document.getElementById('promoEndGroup').style.display = 'none';
-        }
-
-        // Toast notification system
-        function showToast(message, type = 'info', duration = 3000) {
-            // Remove existing toasts
-            const existingToasts = document.querySelectorAll('.toast');
-            existingToasts.forEach(toast => toast.remove());
-
-            // Create toast
-            const toast = document.createElement('div');
-            toast.className = `toast toast-${type}`;
-            toast.innerHTML = message;
-            
-            // Style the toast
-            Object.assign(toast.style, {
-                position: 'fixed',
-                top: '20px',
-                right: '20px',
-                padding: '15px 20px',
-                borderRadius: '8px',
-                color: 'white',
-                fontWeight: '600',
-                zIndex: '10000',
-                maxWidth: '400px',
-                wordWrap: 'break-word',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-                transform: 'translateX(100%)',
-                transition: 'transform 0.3s ease'
-            });
-
-            // Set background color based on type
-            switch(type) {
-                case 'success':
-                    toast.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
-                    break;
-                case 'error':
-                    toast.style.background = 'linear-gradient(135deg, #dc3545, #e74c3c)';
-                    break;
-                case 'warning':
-                    toast.style.background = 'linear-gradient(135deg, #ffc107, #fd7e14)';
-                    break;
-                default:
-                    toast.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
-            }
-
-            // Add to page
-            document.body.appendChild(toast);
-
-            // Animate in
-            setTimeout(() => {
-                toast.style.transform = 'translateX(0)';
-            }, 100);
-
-            // Auto remove
-            setTimeout(() => {
-                toast.style.transform = 'translateX(100%)';
-                setTimeout(() => {
-                    if (toast.parentNode) {
-                        toast.parentNode.removeChild(toast);
-                    }
-                }, 300);
-            }, duration);
-
-            // Click to dismiss
-            toast.addEventListener('click', () => {
-                toast.style.transform = 'translateX(100%)';
-                setTimeout(() => {
-                    if (toast.parentNode) {
-                        toast.parentNode.removeChild(toast);
-                    }
-                }, 300);
-            });
         }
 
         // Show card payoff celebration
