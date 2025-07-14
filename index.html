@@ -1,728 +1,17 @@
-// Update personal goals display
-        function updatePersonalGoals() {
-            const container = document.getElementById('personalGoals');
-            
-            if (!container) return;
-            
-            if (!appData.personalGoals || appData.personalGoals.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">No personal goals set yet. Add one above to get started!</p>';
-                return;
-            }
-            
-            const today = new Date();
-            
-            container.innerHTML = appData.personalGoals.map(goal => {
-                const targetDate = new Date(goal.targetDate);
-                const isOverdue = !goal.completed && targetDate < today;
-                const daysUntil = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24));
-                
-                let statusText = '';
-                if (goal.completed) {
-                    statusText = `Completed ${new Date(goal.completedDate).toLocaleDateString()}`;
-                } else if (isOverdue) {
-                    statusText = `Overdue by ${Math.abs(daysUntil)} days`;
-                } else {
-                    statusText = `${daysUntil} days remaining`;
-                }
-                
-                return `
-                    <div class="goal-item ${goal.completed ? 'completed' : isOverdue ? 'overdue' : ''}">
-                        <div class="goal-content">
-                            <div class="goal-title">${goal.description}</div>
-                            <div class="goal-target">Target: ${targetDate.toLocaleDateString()} • ${statusText}</div>
-                        </div>
-                        <div class="goal-actions">
-                            ${!goal.completed ? `<button class="btn" onclick="completeGoal(${goal.id})">✅ Complete</button>` : ''}
-                            <button class="btn btn-danger" onclick="deleteGoal(${goal.id})">🗑️ Delete</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // Update analytics
-        function updateAnalytics() {
-            const totalDebt = appData.cards.reduce((sum, card) => sum + card.balance, 0);
-            const initialDebt = appData.cards.reduce((sum, card) => sum + card.initialBalance, 0);
-            const debtEliminated = initialDebt - totalDebt;
-            
-            // Calculate days into journey
-            const daysIntoJourney = appData.settings.startDate ? 
-                Math.floor((new Date() - new Date(appData.settings.startDate)) / (1000 * 60 * 60 * 24)) : 0;
-            
-            // Calculate average monthly progress
-            const monthsIntoJourney = daysIntoJourney / 30.44; // Average month length
-            const avgMonthlyProgress = monthsIntoJourney > 0 ? debtEliminated / monthsIntoJourney : 0;
-            
-            // Calculate interest saved (rough estimate)
-            const avgInterestRate = appData.cards.length > 0 ? 
-                appData.cards.reduce((sum, card) => sum + card.apr, 0) / appData.cards.length : 0;
-            const monthlyInterestSaved = (debtEliminated * (avgInterestRate / 100)) / 12;
-            const totalInterestSaved = monthlyInterestSaved * monthsIntoJourney;
-            
-            // Update displays
-            const elements = {
-                'totalPaid': `${debtEliminated.toLocaleString()}`,
-                'interestSavedTotal': `${totalInterestSaved.toLocaleString()}`,
-                'daysIntoJourney        // Placeholder functions to prevent undefined errors
-        function updateMilestones() {
-            // This will be called after all functions are defined
-            const container = document.getElementById('milestoneGrid');
-            if (!container) return;
-            
-            // Initialize milestones if they don't exist
-            if (!appData.milestones || appData.milestones.length === 0) {
-                initializeMilestones();
-            }
-            
-            // Rest of the updateMilestones function will be defined later
-            container.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Loading milestones...</p>';
-        }
-
-        function updatePaymentTimeline() {
-            // Placeholder - will be properly implemented
-            const container = document.getElementById('paymentTimeline');
-            if (!container) return;
-            container.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Loading timeline...</p>';
-        }
-
-        function updatePersonalGoals() {
-            // Placeholder - will be properly implemented
-            const container = document.getElementById('personalGoals');
-            if (!container) return;
-            container.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Loading goals...</p>';
-        }
-
-        function updateAnalytics() {
-            // Placeholder - will be properly implemented
-            // This prevents errors when called early
-        }
-
-        function checkMilestoneAchievements() {
-            // Placeholder - will be properly implemented
-            return [];
-        }
-
-        // Initialize default milestones
-        function initializeMilestones() {
-            if (appData.milestones.length === 0) {
-                const defaultMilestones = [
-                    {
-                        id: 'first-payment',
-                        title: 'First Extra Payment',
-                        description: 'Made your first payment above the minimum',
-                        type: 'payment',
-                        target: 1,
-                        achieved: false,
-                        achievedDate: null,
-                        icon: '💪'
-                    },
-                    {
-                        id: 'first-month',
-                        title: 'One Month Strong',
-                        description: 'Completed your first month of debt elimination',
-                        type: 'time',
-                        target: 30,
-                        achieved: false,
-                        achievedDate: null,
-                        icon: '📅'
-                    },
-                    {
-                        id: 'first-1000',
-                        title: '$1,000 Eliminated',
-                        description: 'Paid off your first $1,000 of debt',
-                        type: 'amount',
-                        target: 1000,
-                        achieved: false,
-                        achievedDate: null,
-                        icon: '💰'
-                    },
-                    {
-                        id: 'first-card',
-                        title: 'First Card Paid Off',
-                        description: 'Completely eliminated your first credit card',
-                        type: 'card',
-                        target: 1,
-                        achieved: false,
-                        achievedDate: null,
-                        icon: '🎯'
-                    },
-                    {
-                        id: 'halfway',
-                        title: 'Halfway There!',
-                        description: 'Eliminated 50% of your total debt',
-                        type: 'percentage',
-                        target: 50,
-                        achieved: false,
-                        achievedDate: null,
-                        icon: '⚡'
-                    },
-                    {
-                        id: 'personal-free',
-                        title: 'Personal Debt Freedom',
-                        description: 'Paid off all personal credit cards',
-                        type: 'personal-cards',
-                        target: 0,
-                        achieved: false,
-                        achievedDate: null,
-                        icon: '🏠'
-                    },
-                    {
-                        id: 'debt-free',
-                        title: 'DEBT FREE!',
-                        description: 'Completely eliminated all credit card debt',
-                        type: 'total-debt',
-                        target: 0,
-                        achieved: false,
-                        achievedDate: null,
-                        icon: '🎉'
-                    }
-                ];
-                
-                appData.milestones = defaultMilestones;
-                saveData();
-            }
-        }
-
-        // Check and update milestone achievements
-        function checkMilestoneAchievements() {
-            const totalDebt = appData.cards.reduce((sum, card) => sum + card.balance, 0);
-            const initialDebt = appData.cards.reduce((sum, card) => sum + card.initialBalance, 0);
-            const debtEliminated = initialDebt - totalDebt;
-            const personalCards = appData.cards.filter(card => card.type === 'personal');
-            const personalDebt = personalCards.reduce((sum, card) => sum + card.balance, 0);
-            const cardsPaidOff = appData.cards.filter(card => card.balance <= 0).length;
-            const daysIntoJourney = appData.settings.startDate ? 
-                Math.floor((new Date() - new Date(appData.settings.startDate)) / (1000 * 60 * 60 * 24)) : 0;
-            
-            let newAchievements = [];
-            
-            appData.milestones.forEach(milestone => {
-                if (!milestone.achieved) {
-                    let achieved = false;
-                    
-                    switch(milestone.type) {
-                        case 'payment':
-                            achieved = appData.paymentHistory.length >= milestone.target;
-                            break;
-                        case 'time':
-                            achieved = daysIntoJourney >= milestone.target;
-                            break;
-                        case 'amount':
-                            achieved = debtEliminated >= milestone.target;
-                            break;
-                        case 'card':
-                            achieved = cardsPaidOff >= milestone.target;
-                            break;
-                        case 'percentage':
-                            achieved = initialDebt > 0 && (debtEliminated / initialDebt * 100) >= milestone.target;
-                            break;
-                        case 'personal-cards':
-                            achieved = personalDebt <= milestone.target;
-                            break;
-                        case 'total-debt':
-                            achieved = totalDebt <= milestone.target;
-                            break;
-                    }
-                    
-                    if (achieved) {
-                        milestone.achieved = true;
-                        milestone.achievedDate = new Date().toISOString().split('T')[0];
-                        newAchievements.push(milestone);
-                    }
-                }
-            });
-            
-            // Show celebrations for new achievements
-            if (newAchievements.length > 0) {
-                showAchievementCelebration(newAchievements);
-                saveData();
-            }
-            
-            return newAchievements;
-        }
-
-        // Show achievement celebration
-        function showAchievementCelebration(achievements) {
-            achievements.forEach((achievement, index) => {
-                setTimeout(() => {
-                    const overlay = document.createElement('div');
-                    overlay.className = 'celebration-overlay';
-                    overlay.innerHTML = `
-                        <div class="celebration-content">
-                            <div style="font-size: 4em; margin-bottom: 20px;">${achievement.icon}</div>
-                            <h2 style="color: #28a745; margin-bottom: 15px;">🎉 Achievement Unlocked! 🎉</h2>
-                            <h3 style="margin-bottom: 15px;">${achievement.title}</h3>
-                            <p style="color: #666; margin-bottom: 30px;">${achievement.description}</p>
-                            <button class="btn" onclick="closeCelebration(this)">Continue Your Journey! 🚀</button>
-                        </div>
-                    `;
-                    
-                    document.body.appendChild(overlay);
-                    
-                    // Show with animation
-                    setTimeout(() => overlay.classList.add('show'), 100);
-                    
-                    // Auto-close after 5 seconds
-                    setTimeout(() => {
-                        if (overlay.parentNode) {
-                            closeCelebration(overlay.querySelector('button'));
-                        }
-                    }, 5000);
-                }, index * 1000);
-            });
-        }
-
-        // Close celebration overlay
-        function closeCelebration(button) {
-            const overlay = button.closest('.celebration-overlay');
-            overlay.classList.remove('show');
-            setTimeout(() => {
-                if (overlay.parentNode) {
-                    overlay.parentNode.removeChild(overlay);
-                }
-            }, 300);
-        }
-
-        // Update milestones display
-        function updateMilestones() {
-            const container = document.getElementById('milestoneGrid');
-            const progressContainer = document.getElementById('overallProgress');
-            const progressText = document.getElementById('overallProgressText');
-            
-            if (!container) return;
-            
-            const achievedCount = appData.milestones.filter(m => m.achieved).length;
-            const totalCount = appData.milestones.length;
-            const overallProgress = totalCount > 0 ? (achievedCount / totalCount * 100) : 0;
-            
-            // Update overall progress
-            if (progressContainer) {
-                progressContainer.style.width = `${overallProgress}%`;
-            }
-            if (progressText) {
-                progressText.textContent = `${Math.round(overallProgress)}% Complete (${achievedCount}/${totalCount})`;
-            }
-            
-            // Get next milestone
-            const nextMilestone = appData.milestones.find(m => !m.achieved);
-            
-            container.innerHTML = appData.milestones.map(milestone => {
-                const isNext = milestone === nextMilestone;
-                let progress = 0;
-                let progressText = '';
-                
-                // Calculate progress for each milestone type
-                const totalDebt = appData.cards.reduce((sum, card) => sum + card.balance, 0);
-                const initialDebt = appData.cards.reduce((sum, card) => sum + card.initialBalance, 0);
-                const debtEliminated = initialDebt - totalDebt;
-                const personalCards = appData.cards.filter(card => card.type === 'personal');
-                const personalDebt = personalCards.reduce((sum, card) => sum + card.balance, 0);
-                const cardsPaidOff = appData.cards.filter(card => card.balance <= 0).length;
-                const daysIntoJourney = appData.settings.startDate ? 
-                    Math.floor((new Date() - new Date(appData.settings.startDate)) / (1000 * 60 * 60 * 24)) : 0;
-                
-                switch(milestone.type) {
-                    case 'payment':
-                        progress = Math.min(100, (appData.paymentHistory.length / milestone.target) * 100);
-                        progressText = `${appData.paymentHistory.length}/${milestone.target} payments`;
-                        break;
-                    case 'time':
-                        progress = Math.min(100, (daysIntoJourney / milestone.target) * 100);
-                        progressText = `${daysIntoJourney}/${milestone.target} days`;
-                        break;
-                    case 'amount':
-                        progress = Math.min(100, (debtEliminated / milestone.target) * 100);
-                        progressText = `${debtEliminated.toLocaleString()}/${milestone.target.toLocaleString()}`;
-                        break;
-                    case 'card':
-                        progress = Math.min(100, (cardsPaidOff / milestone.target) * 100);
-                        progressText = `${cardsPaidOff}/${milestone.target} cards`;
-                        break;
-                    case 'percentage':
-                        const currentPercentage = initialDebt > 0 ? (debtEliminated / initialDebt * 100) : 0;
-                        progress = Math.min(100, (currentPercentage / milestone.target) * 100);
-                        progressText = `${Math.round(currentPercentage)}%/${milestone.target}%`;
-                        break;
-                    case 'personal-cards':
-                        const personalInitial = personalCards.reduce((sum, card) => sum + card.initialBalance, 0);
-                        const personalEliminated = personalInitial - personalDebt;
-                        progress = personalInitial > 0 ? Math.min(100, (personalEliminated / personalInitial) * 100) : 100;
-                        progressText = `${personalEliminated.toLocaleString()} eliminated`;
-                        break;
-                    case 'total-debt':
-                        progress = initialDebt > 0 ? Math.min(100, (debtEliminated / initialDebt) * 100) : 100;
-                        progressText = `${Math.round(progress)}% complete`;
-                        break;
-                }
-                
-                return `
-                    <div class="milestone-item ${milestone.achieved ? 'achieved' : isNext ? 'next-up' : ''}">
-                        <div class="milestone-header">
-                            <div class="milestone-title">${milestone.icon} ${milestone.title}</div>
-                            <div class="milestone-badge ${milestone.achieved ? 'badge-achieved' : isNext ? 'badge-next' : 'badge-future'}">
-                                ${milestone.achieved ? 'Achieved!' : isNext ? 'Next Up' : 'Future'}
-                            </div>
-                        </div>
-                        <div class="milestone-description">${milestone.description}</div>
-                        <div class="milestone-progress-bar">
-                            <div class="milestone-progress-fill" style="width: ${progress}%"></div>
-                        </div>
-                        <div class="milestone-details">
-                            <div>Progress: ${progressText}</div>
-                            <div>${milestone.achieved ? `Achieved: ${new Date(milestone.achievedDate).toLocaleDateString()}` : `${Math.round(progress)}% complete`}</div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // Record payment history
-        function recordPaymentHistory() {
-            const today = new Date().toISOString().split('T')[0];
-            
-            // Check if already recorded for today
-            const existingEntry = appData.paymentHistory.find(entry => entry.date === today);
-            if (existingEntry) {
-                if (!confirm('You already recorded payments for today. Update the record?')) {
-                    return;
-                }
-                // Remove existing entry
-                appData.paymentHistory = appData.paymentHistory.filter(entry => entry.date !== today);
-            }
-            
-            const totalMinPayments = appData.cards.reduce((sum, card) => sum + card.minPayment, 0);
-            const availableExtra = calculateAvailableForDebt();
-            const totalPayment = totalMinPayments + Math.max(0, availableExtra);
-            
-            const historyEntry = {
-                date: today,
-                totalPayment: totalPayment,
-                minPayments: totalMinPayments,
-                extraPayment: Math.max(0, availableExtra),
-                totalDebtBefore: appData.cards.reduce((sum, card) => sum + card.balance, 0),
-                cardsRemaining: appData.cards.filter(card => card.balance > 0).length,
-                strategy: appData.settings.strategy,
-                notes: `${appData.settings.strategy} strategy - Month ${appData.settings.currentMonth}`
-            };
-            
-            appData.paymentHistory.unshift(historyEntry); // Add to beginning
-            
-            // Keep only last 100 entries
-            if (appData.paymentHistory.length > 100) {
-                appData.paymentHistory = appData.paymentHistory.slice(0, 100);
-            }
-            
-            saveData();
-            
-            // Safely update displays
-            if (typeof updatePaymentTimeline === 'function') {
-                updatePaymentTimeline();
-            }
-            if (typeof checkMilestoneAchievements === 'function') {
-                checkMilestoneAchievements();
-            }
-            if (typeof updateMilestones === 'function') {
-                updateMilestones();
-            }
-            
-            alert('Payment history recorded successfully!');
-        }
-
-        // Update payment timeline
-        function updatePaymentTimeline() {
-            const container = document.getElementById('paymentTimeline');
-            
-            if (!container || appData.paymentHistory.length === 0) {
-                if (container) {
-        // Update payment timeline
-        function updatePaymentTimeline() {
-            const container = document.getElementById('paymentTimeline');
-            
-            if (!container || appData.paymentHistory.length === 0) {
-                if (container) {
-                    container.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">No payment history recorded yet. Click "Record This Month\'s Payments" to start tracking!</p>';
-                }
-                return;
-            }
-            
-            container.innerHTML = appData.paymentHistory.map(entry => {
-                const entryDate = new Date(entry.date);
-                const isRecent = (new Date() - entryDate) < (7 * 24 * 60 * 60 * 1000); // Within 7 days
-                
-                return `
-                    <div class="timeline-item ${isRecent ? 'recent' : ''}">
-                        <div class="timeline-date">${entryDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">Monthly Payment Recorded</div>
-                            <div class="timeline-details">
-                                Min Payments: ${entry.minPayments.toLocaleString()} | 
-                                Extra: ${entry.extraPayment.toLocaleString()} | 
-                                Cards Remaining: ${entry.cardsRemaining} |
-                                Strategy: ${entry.strategy}
-                            </div>
-                            ${entry.notes ? `<div class="timeline-details" style="margin-top: 5px; font-style: italic;">${entry.notes}</div>` : ''}
-                        </div>
-                        <div class="timeline-amount">${entry.totalPayment.toLocaleString()}</div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // Add personal goal
-        function addPersonalGoal() {
-            const description = document.getElementById('goalDescription').value.trim();
-            const targetDate = document.getElementById('goalTarget').value;
-            
-            if (!description || !targetDate) {
-                alert('Please fill in both goal description and target date.');
-                return;
-            }
-            
-            const goal = {
-                id: Date.now(),
-                description: description,
-                targetDate: targetDate,
-                completed: false,
-                completedDate: null,
-                createdDate: new Date().toISOString().split('T')[0]
-            };
-            
-            appData.personalGoals.push(goal);
-            saveData();
-            updatePersonalGoals();
-            
-            // Clear form
-            document.getElementById('goalDescription').value = '';
-            document.getElementById('goalTarget').value = '';
-            
-            alert('Personal goal added successfully!');
-        }
-
-        // Update personal goals display
-        function updatePersonalGoals() {
-            const container = document.getElementById('personalGoals');
-            
-            if (!container) return;
-            
-            if (appData.personalGoals.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">No personal goals set yet. Add one above to get started!</p>';
-                return;
-            }
-            
-            const today = new Date();
-            
-            container.innerHTML = appData.personalGoals.map(goal => {
-                const targetDate = new Date(goal.targetDate);
-                const isOverdue = !goal.completed && targetDate < today;
-                const daysUntil = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24));
-                
-                let statusText = '';
-                if (goal.completed) {
-                    statusText = `Completed ${new Date(goal.completedDate).toLocaleDateString()}`;
-                } else if (isOverdue) {
-                    statusText = `Overdue by ${Math.abs(daysUntil)} days`;
-                } else {
-                    statusText = `${daysUntil} days remaining`;
-                }
-                
-                return `
-                    <div class="goal-item ${goal.completed ? 'completed' : isOverdue ? 'overdue' : ''}">
-                        <div class="goal-content">
-                            <div class="goal-title">${goal.description}</div>
-                            <div class="goal-target">Target: ${targetDate.toLocaleDateString()} • ${statusText}</div>
-                        </div>
-                        <div class="goal-actions">
-                            ${!goal.completed ? `<button class="btn" onclick="completeGoal(${goal.id})">✅ Complete</button>` : ''}
-                            <button class="btn btn-danger" onclick="deleteGoal(${goal.id})">🗑️ Delete</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // Complete a personal goal
-        function completeGoal(goalId) {
-            const goal = appData.personalGoals.find(g => g.id === goalId);
-            if (goal) {
-                goal.completed = true;
-                goal.completedDate = new Date().toISOString().split('T')[0];
-                saveData();
-                updatePersonalGoals();
-                
-                // Show celebration
-                showGoalCelebration(goal);
-            }
-        }
-
-        // Delete a personal goal
-        function deleteGoal(goalId) {
-            if (confirm('Are you sure you want to delete this goal?')) {
-                appData.personalGoals = appData.personalGoals.filter(g => g.id !== goalId);
-                saveData();
-                updatePersonalGoals();
-            }
-        }
-
-        // Show goal completion celebration
-        function showGoalCelebration(goal) {
-            const overlay = document.createElement('div');
-            overlay.className = 'celebration-overlay';
-            overlay.innerHTML = `
-                <div class="celebration-content">
-                    <div style="font-size: 4em; margin-bottom: 20px;">🎯</div>
-                    <h2 style="color: #28a745; margin-bottom: 15px;">🎉 Goal Achieved! 🎉</h2>
-                    <h3 style="margin-bottom: 15px;">${goal.description}</h3>
-                    <p style="color: #666; margin-bottom: 30px;">Congratulations on reaching your personal milestone!</p>
-                    <button class="btn" onclick="closeCelebration(this)">Keep Going! 🚀</button>
-                </div>
-            `;
-            
-            document.body.appendChild(overlay);
-            setTimeout(() => overlay.classList.add('show'), 100);
-        }
-
-        // Update analytics
-        function updateAnalytics() {
-            const totalDebt = appData.cards.reduce((sum, card) => sum + card.balance, 0);
-            const initialDebt = appData.cards.reduce((sum, card) => sum + card.initialBalance, 0);
-            const debtEliminated = initialDebt - totalDebt;
-            
-            // Calculate days into journey
-            const daysIntoJourney = appData.settings.startDate ? 
-                Math.floor((new Date() - new Date(appData.settings.startDate)) / (1000 * 60 * 60 * 24)) : 0;
-            
-            // Calculate average monthly progress
-            const monthsIntoJourney = daysIntoJourney / 30.44; // Average month length
-            const avgMonthlyProgress = monthsIntoJourney > 0 ? debtEliminated / monthsIntoJourney : 0;
-            
-            // Calculate interest saved (rough estimate)
-            const avgInterestRate = appData.cards.reduce((sum, card) => sum + card.apr, 0) / appData.cards.length;
-            const monthlyInterestSaved = (debtEliminated * (avgInterestRate / 100)) / 12;
-            const totalInterestSaved = monthlyInterestSaved * monthsIntoJourney;
-            
-            // Update displays
-            const elements = {
-                'totalPaid': `${debtEliminated.toLocaleString()}`,
-                'interestSavedTotal': `${totalInterestSaved.toLocaleString()}`,
-                'daysIntoJourney': daysIntoJourney.toString(),
-                'avgMonthlyProgress': `${avgMonthlyProgress.toLocaleString()}`
-            };
-            
-            Object.keys(elements).forEach(id => {
-                const element = document.getElementById(id);
-                if (element) {
-                    element.textContent = elements[id];
-                }
-            });
-            
-            // Update progress chart (simple text for now)
-            const chartContainer = document.getElementById('progressChart');
-            if (chartContainer && appData.paymentHistory.length > 0) {
-                const recentPayments = appData.paymentHistory.slice(0, 6).reverse();
-                chartContainer.innerHTML = `
-                    <div style="width: 100%;">
-                        <h4 style="margin-bottom: 15px; text-align: center;">Recent Payment History</h4>
-                        <div style="display: flex; align-items: end; justify-content: space-around; height: 120px;">
-                            ${recentPayments.map(payment => {
-                                const maxPayment = Math.max(...recentPayments.map(p => p.totalPayment));
-                                const height = (payment.totalPayment / maxPayment) * 100;
-                                return `
-                                    <div style="display: flex; flex-direction: column; align-items: center;">
-                                        <div style="width: 30px; background: linear-gradient(to top, #667eea, #764ba2); height: ${height}px; border-radius: 4px; margin-bottom: 5px;"></div>
-                                        <div style="font-size: 0.8em; color: #666;">${new Date(payment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
-                                        <div style="font-size: 0.7em; color: #999;">${payment.totalPayment.toLocaleString()}</div>
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
-                    </div>
-                `;
-            } else if (chartContainer) {
-                chartContainer.innerHTML = '<p style="color: #666;">Start recording payments to see your progress chart!</p>';
-            }
-        }
-
-        // Export payment history
-        function exportPaymentHistory() {
-            if (appData.paymentHistory.length === 0) {
-                alert('No payment history to export. Record some payments first!');
-                return;
-            }
-            
-            const csvHeader = 'Date,Total Payment,Min Payments,Extra Payment,Debt Before,Cards Remaining,Strategy,Notes\n';
-            const csvData = appData.paymentHistory.map(entry => 
-                `${entry.date},${entry.totalPayment},${entry.minPayments},${entry.extraPayment},${entry.totalDebtBefore},${entry.cardsRemaining},"${entry.strategy}","${entry.notes}"`
-            ).join('\n');
-            
-            const csvContent = csvHeader + csvData;
-            const blob = new Blob([csvContent], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `debtfree-pro-payment-history-${new Date().toISOString().split('T')[0]}.csv`;
-            link.click();
-            
-            alert('Payment history exported successfully!');
-        }
-
-        // Enhanced record payment function
-        function recordPayment(cardId, paymentAmount) {
-            const card = appData.cards.find(c => c.id === cardId);
-            const payment = parseFloat(paymentAmount) || 0;
-            
-            if (card && payment > 0) {
-                const oldBalance = card.balance;
-                card.balance = Math.max(0, card.balance - payment);
-                const actualPayment = oldBalance - card.balance;
-                
-                saveData();
-                
-                // Check for card payoff achievement
-                if (oldBalance > 0 && card.balance === 0) {
-                    showCardPayoffCelebration(card);
-                }
-                
-                // Check milestone achievements
-                checkMilestoneAchievements();
-                
-                updateAllDisplays();
-                
-                // Clear the payment input
-                event.target.value = '';
-                
-                // Show success message
-                alert(`Payment of ${actualPayment.toFixed(2)} recorded for ${card.name}!${card.balance === 0 ? ' 🎉 CARD PAID OFF!' : ''}`);
-            }
-        }
-
-        // Show card payoff celebration
-        function showCardPayoffCelebration(card) {
-            const overlay = document.createElement('div');
-            overlay.className = 'celebration-overlay';
-            overlay.innerHTML = `
-                <div class="celebration-content">
-                    <div style="font-size: 4em; margin-bottom: 20px;">🎯</div>
-                    <h2 style="color: #28a745; margin-bottom: 15px;">🎉 CARD PAID OFF! 🎉</h2>
-                    <h3 style="margin-bottom: 15px;">${card.name}</h3>
-                    <p style="color: #666; margin-bottom: 20px;">You've completely eliminated this debt!</p>
-                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                        <strong>Original Balance:</strong> ${card.initialBalance.toLocaleString()}<br>
-                        <strong>Interest Rate:</strong> ${card.apr}%<br>
-                        <strong>Monthly Savings:</strong> ${((card.initialBalance * card.apr / 100) / 12).toFixed(2)}
-                    </div>
-                    <button class="btn" onclick="closeCelebration(this)">On to the Next One! 🚀</button>
-                </div>
-            `;
-            
-            document.body.appendChild(overlay);
-            setTimeout(() => overlay.classList.add('show'), 100);
-        }<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DebtFree Pro - Credit Card Debt Elimination</title>
+    
+    <!-- PWA Configuration -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="DebtFree Pro">
+    
     <style>
         * {
             margin: 0;
@@ -1005,7 +294,7 @@
 
         .debt-card-header {
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
         }
@@ -1071,228 +360,7 @@
             font-weight: bold;
         }
 
-        /* Plan Tab */
-        .plan-timeline {
-            background: #fff;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .timeline-month {
-            display: flex;
-            align-items: center;
-            padding: 20px;
-            border-bottom: 1px solid #e9ecef;
-            transition: background-color 0.3s ease;
-        }
-
-        .timeline-month:hover {
-            background: #f8f9fa;
-        }
-
-        .timeline-month.completed {
-            background: #d4edda;
-        }
-
-        .timeline-month.current {
-            background: #fff3cd;
-            border-left: 5px solid #ffc107;
-        }
-
-        .month-number {
-            width: 60px;
-            height: 60px;
-            background: #6c757d;
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin-right: 20px;
-        }
-
-        .month-number.completed {
-            background: #28a745;
-        }
-
-        .month-number.current {
-            background: #ffc107;
-            color: #856404;
-        }
-
-        .month-info {
-            flex: 1;
-        }
-
-        .month-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .month-details {
-            color: #666;
-            font-size: 0.9em;
-        }
-
-        .month-payment {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-
-        /* Settings */
-        .settings-section {
-            margin-bottom: 30px;
-        }
-
-        .settings-section h3 {
-            color: #2c3e50;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #e9ecef;
-        }
-
-        /* Strategy Cards */
-        .strategy-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .strategy-card {
-            background: white;
-            border: 2px solid #e9ecef;
-            border-radius: 12px;
-            padding: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .strategy-card:hover {
-            border-color: #667eea;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.2);
-        }
-
-        .strategy-card.selected {
-            border-color: #667eea;
-            background: linear-gradient(135deg, #f8f9ff, #ffffff);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
-        }
-
-        .strategy-card.selected::before {
-            content: "✓";
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            background: #28a745;
-            color: white;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 1.2em;
-        }
-
-        .strategy-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .strategy-header h4 {
-            margin: 0;
-            color: #2c3e50;
-        }
-
-        .strategy-badge {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            font-weight: bold;
-        }
-
-        .strategy-example {
-            background: #f8f9fa;
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 0.9em;
-            color: #666;
-            border-left: 3px solid #667eea;
-        }
-
-        .strategy-card ul {
-            padding-left: 20px;
-        }
-
-        .strategy-card li {
-            margin-bottom: 5px;
-            color: #555;
-        }
-
-        .strategy-comparison-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-
-        .strategy-comparison-table th,
-        .strategy-comparison-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .strategy-comparison-table th {
-            background: #667eea;
-            color: white;
-            font-weight: bold;
-        }
-
-        .strategy-comparison-table tr:hover {
-            background: #f8f9fa;
-        }
-
-        .best-strategy {
-            background: #d4edda !important;
-            border-left: 4px solid #28a745;
-        }
-
-        .strategy-metrics {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .metric-item {
-            text-align: center;
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #e9ecef;
-        }
-
-        .metric-value-large {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-
-        .metric-label-small {
-            font-size: 0.9em;
-            color: #666;
-            margin-top: 5px;
-        }
+        /* Responsive */
         @media (max-width: 768px) {
             .app-container {
                 padding: 10px;
@@ -1334,41 +402,6 @@
         .card {
             animation: slideIn 0.5s ease-out;
         }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            backdrop-filter: blur(5px);
-        }
-
-        .modal-content {
-            background-color: white;
-            margin: 5% auto;
-            padding: 30px;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-        }
-
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .close:hover {
-            color: black;
-        }
     </style>
 </head>
 <body>
@@ -1385,7 +418,6 @@
             <button class="nav-tab" data-tab="setup">⚙️ Setup</button>
             <button class="nav-tab" data-tab="tracker">📈 Tracker</button>
             <button class="nav-tab" data-tab="plan">📋 Plan</button>
-            <button class="nav-tab" data-tab="milestones">🏆 Milestones</button>
             <button class="nav-tab" data-tab="settings">🔧 Settings</button>
         </div>
 
@@ -1530,86 +562,6 @@
             </div>
         </div>
 
-        <!-- Milestones Tab -->
-        <div class="tab-content" id="milestones">
-            <div class="card">
-                <h2>🏆 Achievement Milestones</h2>
-                <div class="milestone-progress">
-                    <div class="progress-container">
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="overallProgress" style="width: 0%"></div>
-                            <div class="progress-text" id="overallProgressText">0% Complete</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="milestone-grid" id="milestoneGrid">
-                    <!-- Milestones will be populated here -->
-                </div>
-            </div>
-
-            <div class="card">
-                <h2>📈 Payment History Timeline</h2>
-                <div class="timeline-controls">
-                    <button class="btn" onclick="recordPaymentHistory()">📝 Record This Month's Payments</button>
-                    <button class="btn btn-secondary" onclick="exportPaymentHistory()">📊 Export History</button>
-                </div>
-                <div class="payment-timeline" id="paymentTimeline">
-                    <!-- Payment history will be populated here -->
-                </div>
-            </div>
-
-            <div class="card">
-                <h2>🎯 Goals & Celebrations</h2>
-                <div class="goals-section">
-                    <div class="add-goal-form">
-                        <h3>Add Personal Goal</h3>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 15px; align-items: end;">
-                            <div class="form-group">
-                                <label for="goalDescription">Goal Description</label>
-                                <input type="text" id="goalDescription" placeholder="e.g., Pay off Chase Sapphire">
-                            </div>
-                            <div class="form-group">
-                                <label for="goalTarget">Target Date</label>
-                                <input type="date" id="goalTarget">
-                            </div>
-                            <button class="btn" onclick="addPersonalGoal()">➕ Add Goal</button>
-                        </div>
-                    </div>
-                    
-                    <div class="personal-goals" id="personalGoals">
-                        <!-- Personal goals will be populated here -->
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h2>📊 Progress Analytics</h2>
-                <div class="analytics-grid">
-                    <div class="metric-card">
-                        <div class="metric-value positive" id="totalPaid">$0</div>
-                        <div class="metric-label">Total Debt Eliminated</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-value positive" id="interestSavedTotal">$0</div>
-                        <div class="metric-label">Interest Saved So Far</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-value positive" id="daysIntoJourney">0</div>
-                        <div class="metric-label">Days Into Journey</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-value positive" id="avgMonthlyProgress">$0</div>
-                        <div class="metric-label">Avg Monthly Progress</div>
-                    </div>
-                </div>
-                
-                <div class="progress-chart" id="progressChart">
-                    <!-- Simple progress chart will be here -->
-                </div>
-            </div>
-        </div>
-
         <!-- Plan Tab -->
         <div class="tab-content" id="plan">
             <div class="card">
@@ -1625,58 +577,14 @@
             <div class="card">
                 <div class="settings-section">
                     <h3>🎯 Debt Elimination Strategy</h3>
-                    <div class="strategy-cards" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 20px;">
-                        <div class="strategy-card" data-strategy="avalanche">
-                            <div class="strategy-header">
-                                <h4>📊 Debt Avalanche</h4>
-                                <div class="strategy-badge">Most Savings</div>
-                            </div>
-                            <p><strong>Highest Interest First</strong></p>
-                            <ul style="text-align: left; margin: 15px 0;">
-                                <li>Mathematically optimal</li>
-                                <li>Saves the most money</li>
-                                <li>Faster overall payoff</li>
-                                <li>Best for disciplined people</li>
-                            </ul>
-                            <div class="strategy-example">Example: 25% card before 15% card</div>
-                        </div>
-                        
-                        <div class="strategy-card" data-strategy="snowball">
-                            <div class="strategy-header">
-                                <h4>⛄ Debt Snowball</h4>
-                                <div class="strategy-badge">Quick Wins</div>
-                            </div>
-                            <p><strong>Smallest Balance First</strong></p>
-                            <ul style="text-align: left; margin: 15px 0;">
-                                <li>Psychological momentum</li>
-                                <li>Quick victories</li>
-                                <li>Easier to stick with</li>
-                                <li>Great for motivation</li>
-                            </ul>
-                            <div class="strategy-example">Example: $500 card before $5000 card</div>
-                        </div>
-                        
-                        <div class="strategy-card" data-strategy="personal-first">
-                            <div class="strategy-header">
-                                <h4>👤 Personal First</h4>
-                                <div class="strategy-badge">Balanced</div>
-                            </div>
-                            <p><strong>Personal Cards, Then Business</strong></p>
-                            <ul style="text-align: left; margin: 15px 0;">
-                                <li>Separate personal/business</li>
-                                <li>Tax advantages for business</li>
-                                <li>Clear priority system</li>
-                                <li>Professional organization</li>
-                            </ul>
-                            <div class="strategy-example">Example: All personal cards first</div>
-                        </div>
+                    <div class="form-group">
+                        <label for="strategy">Choose Your Strategy</label>
+                        <select id="strategy">
+                            <option value="avalanche">Debt Avalanche (Highest Interest First)</option>
+                            <option value="snowball">Debt Snowball (Smallest Balance First)</option>
+                            <option value="personal-first">Personal Cards First</option>
+                        </select>
                     </div>
-                    
-                    <div class="strategy-comparison" id="strategyComparison" style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 20px; display: none;">
-                        <!-- Comparison will be populated by JavaScript -->
-                    </div>
-                    
-                    <button class="btn" onclick="calculateStrategies()" style="margin-bottom: 20px;">🔄 Compare All Strategies</button>
                 </div>
 
                 <div class="settings-section">
@@ -1693,25 +601,6 @@
                 </div>
 
                 <div class="settings-section">
-                    <h3>📱 Notifications</h3>
-                    <div class="form-group">
-                        <label>
-                            <input type="checkbox" id="paymentReminders"> Payment Reminders
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <label>
-                            <input type="checkbox" id="milestoneAlerts"> Milestone Celebrations
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <label>
-                            <input type="checkbox" id="promoAlerts"> Promotional Rate Alerts
-                        </label>
-                    </div>
-                </div>
-
-                <div class="settings-section">
                     <h3>💾 Data Management</h3>
                     <button class="btn" onclick="exportData()">📤 Export Data</button>
                     <button class="btn btn-secondary" onclick="importData()">📥 Import Data</button>
@@ -1721,26 +610,8 @@
         </div>
     </div>
 
-    <!-- Modal for editing cards -->
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Edit Credit Card</h2>
-            <div id="editForm">
-                <!-- Edit form will be populated here -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Celebration Overlay for Achievements -->
-    <div id="celebrationOverlay" class="celebration-overlay">
-        <div class="celebration-content">
-            <!-- Dynamic content will be inserted here -->
-        </div>
-    </div>
-
     <script>
-        // Application State (Enhanced)
+        // Application State
         let appData = {
             cards: [],
             budget: {
@@ -1753,108 +624,14 @@
                 currentMonth: 1,
                 startDate: null
             },
-            bonuses: [],
-            milestones: [],
-            paymentHistory: [],
-            personalGoals: [],
-            achievements: []
+            bonuses: []
         };
 
-        // Initialize default milestones
-        function initializeMilestones() {
-            if (appData.milestones.length === 0) {
-                const defaultMilestones = [
-                    {
-                        id: 'first-payment',
-                        title: 'First Extra Payment',
-                        description: 'Made your first payment above the minimum',
-                        type: 'payment',
-                        target: 1,
-                        achieved: false,
-                        achievedDate: null,
-                        icon: '💪'
-                    },
-                    {
-                        id: 'first-month',
-                        title: 'One Month Strong',
-                        description: 'Completed your first month of debt elimination',
-                        type: 'time',
-                        target: 30,
-                        achieved: false,
-                        achievedDate: null,
-                        icon: '📅'
-                    },
-                    {
-                        id: 'first-1000',
-                        title: '$1,000 Eliminated',
-                        description: 'Paid off your first $1,000 of debt',
-                        type: 'amount',
-                        target: 1000,
-                        achieved: false,
-                        achievedDate: null,
-                        icon: '💰'
-                    },
-                    {
-                        id: 'first-card',
-                        title: 'First Card Paid Off',
-                        description: 'Completely eliminated your first credit card',
-                        type: 'card',
-                        target: 1,
-                        achieved: false,
-                        achievedDate: null,
-                        icon: '🎯'
-                    },
-                    {
-                        id: 'halfway',
-                        title: 'Halfway There!',
-                        description: 'Eliminated 50% of your total debt',
-                        type: 'percentage',
-                        target: 50,
-                        achieved: false,
-                        achievedDate: null,
-                        icon: '⚡'
-                    },
-                    {
-                        id: 'personal-free',
-                        title: 'Personal Debt Freedom',
-                        description: 'Paid off all personal credit cards',
-                        type: 'personal-cards',
-                        target: 0,
-                        achieved: false,
-                        achievedDate: null,
-                        icon: '🏠'
-                    },
-                    {
-                        id: 'debt-free',
-                        title: 'DEBT FREE!',
-                        description: 'Completely eliminated all credit card debt',
-                        type: 'total-debt',
-                        target: 0,
-                        achieved: false,
-                        achievedDate: null,
-                        icon: '🎉'
-                    }
-                ];
-                
-                appData.milestones = defaultMilestones;
-                saveData();
-            }
-        }
-
-        // Load data from localStorage (Enhanced)
+        // Load data from localStorage
         function loadData() {
             const saved = localStorage.getItem('debtFreeProData');
             if (saved) {
-                const loadedData = JSON.parse(saved);
-                appData = { 
-                    ...appData, 
-                    ...loadedData,
-                    // Ensure new properties exist
-                    milestones: loadedData.milestones || [],
-                    paymentHistory: loadedData.paymentHistory || [],
-                    personalGoals: loadedData.personalGoals || [],
-                    achievements: loadedData.achievements || []
-                };
+                appData = { ...appData, ...JSON.parse(saved) };
             }
             
             // Set start date if not set
@@ -1863,7 +640,6 @@
                 saveData();
             }
             
-            initializeMilestones();
             updateAllDisplays();
         }
 
@@ -1920,7 +696,7 @@
                 type: type,
                 promoRate: promoRate,
                 promoEndDate: promoEndDate || null,
-                actualAPR: apr // Store actual APR even for promo rates
+                actualAPR: apr
             };
 
             appData.cards.push(card);
@@ -1969,27 +745,13 @@
             }, 0);
         }
 
-        // Update all displays (Enhanced)
+        // Update all displays
         function updateAllDisplays() {
             updateDashboard();
             updateSetupCardList();
             updateTrackerCardList();
             updateMonthOptions();
             generatePlan();
-            
-            // Check if milestone functions exist before calling them
-            if (typeof updateMilestones === 'function') {
-                updateMilestones();
-            }
-            if (typeof updatePaymentTimeline === 'function') {
-                updatePaymentTimeline();
-            }
-            if (typeof updatePersonalGoals === 'function') {
-                updatePersonalGoals();
-            }
-            if (typeof updateAnalytics === 'function') {
-                updateAnalytics();
-            }
             
             // Update budget fields
             document.getElementById('monthlyIncome').value = appData.budget.income;
@@ -2031,17 +793,14 @@
             let focusCard = null;
 
             if (strategy === 'avalanche') {
-                // Highest interest rate first
                 focusCard = appData.cards
                     .filter(card => card.balance > 0)
                     .sort((a, b) => b.apr - a.apr)[0];
             } else if (strategy === 'snowball') {
-                // Smallest balance first
                 focusCard = appData.cards
                     .filter(card => card.balance > 0)
                     .sort((a, b) => a.balance - b.balance)[0];
             } else if (strategy === 'personal-first') {
-                // Personal cards with highest interest first
                 const personalCards = appData.cards.filter(card => card.type === 'personal' && card.balance > 0);
                 if (personalCards.length > 0) {
                     focusCard = personalCards.sort((a, b) => b.apr - a.apr)[0];
@@ -2065,7 +824,7 @@
                         <div class="debt-card-details">
                             <div class="detail-item">
                                 <div class="detail-label">Balance</div>
-                                <div class="detail-value">${focusCard.balance.toLocaleString()}</div>
+                                <div class="detail-value">$${focusCard.balance.toLocaleString()}</div>
                             </div>
                             <div class="detail-item">
                                 <div class="detail-label">Interest Rate</div>
@@ -2073,15 +832,15 @@
                             </div>
                             <div class="detail-item">
                                 <div class="detail-label">Min Payment</div>
-                                <div class="detail-value">${focusCard.minPayment}</div>
+                                <div class="detail-value">$${focusCard.minPayment}</div>
                             </div>
                             <div class="detail-item">
                                 <div class="detail-label">Available Extra</div>
-                                <div class="detail-value">${Math.max(0, availableExtra).toFixed(2)}</div>
+                                <div class="detail-value">$${Math.max(0, availableExtra).toFixed(2)}</div>
                             </div>
                         </div>
                         <div class="payment-instruction">
-                            💰 Recommended Payment: ${recommendedPayment.toFixed(2)}
+                            💰 Recommended Payment: $${recommendedPayment.toFixed(2)}
                         </div>
                     </div>
                 `;
@@ -2246,7 +1005,6 @@
                 return;
             }
 
-            // Simple plan generation - can be enhanced
             const availableExtra = calculateAvailableForDebt();
             const totalMinPayments = appData.cards.reduce((sum, card) => sum + card.minPayment, 0);
             
@@ -2283,24 +1041,22 @@
                     balanceAfter: Math.max(0, focusCard.balance - principalPayment)
                 });
                 
-                // Update balance
                 focusCard.balance = Math.max(0, focusCard.balance - principalPayment);
-                
-                // Remove paid off cards
                 cards = cards.filter(card => card.balance > 0);
-                
                 month++;
             }
             
             container.innerHTML = plan.map((monthPlan, index) => `
-                <div class="timeline-month ${index === 0 ? 'current' : ''}">
-                    <div class="month-number ${index === 0 ? 'current' : ''}">${monthPlan.month}</div>
-                    <div class="month-info">
-                        <div class="month-title">Month ${monthPlan.month}</div>
-                        <div class="month-details">Focus: ${monthPlan.focusCard}</div>
-                        <div class="month-details">Balance after payment: ${monthPlan.balanceAfter.toLocaleString()}</div>
+                <div style="display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #e9ecef;">
+                    <div style="width: 60px; height: 60px; background: ${index === 0 ? '#ffc107' : '#6c757d'}; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 20px;">
+                        ${monthPlan.month}
                     </div>
-                    <div class="month-payment">${monthPlan.payment.toFixed(2)}</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: bold; margin-bottom: 5px;">Month ${monthPlan.month}</div>
+                        <div style="color: #666; font-size: 0.9em;">Focus: ${monthPlan.focusCard}</div>
+                        <div style="color: #666; font-size: 0.9em;">Balance after payment: ${monthPlan.balanceAfter.toLocaleString()}</div>
+                    </div>
+                    <div style="font-size: 1.5em; font-weight: bold; color: #2c3e50;">${monthPlan.payment.toFixed(2)}</div>
                 </div>
             `).join('');
             
@@ -2328,8 +1084,6 @@
             const month = parseInt(document.getElementById('currentMonth').value);
             appData.settings.currentMonth = month;
             saveData();
-            
-            // Update monthly payment plan display
             updateMonthlyPaymentPlan();
         }
 
@@ -2363,15 +1117,15 @@
                         </div>
                         <div class="detail-item">
                             <div class="detail-label">Available Extra</div>
-                            <div class="detail-value ${availableExtra >= 0 ? 'positive' : 'negative'}">${availableExtra.toFixed(2)}</div>
+                            <div class="detail-value" style="color: ${availableExtra >= 0 ? '#28a745' : '#dc3545'};">${availableExtra.toFixed(2)}</div>
                         </div>
                     </div>
                 </div>
                 
                 <div class="card">
                     <h3>📋 Payment Instructions</h3>
-                    ${appData.cards.filter(card => card.balance > 0).map(card => {
-                        const isFocus = true; // Simplified - first card is focus
+                    ${appData.cards.filter(card => card.balance > 0).map((card, index) => {
+                        const isFocus = index === 0;
                         const payment = isFocus ? card.minPayment + Math.max(0, availableExtra) : card.minPayment;
                         
                         return `
@@ -2480,276 +1234,29 @@
             }
         }
 
-        // Strategy card selection
+        // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
             loadData();
             
-            // Add strategy card click handlers
-            document.querySelectorAll('.strategy-card').forEach(card => {
-                card.addEventListener('click', function() {
-                    // Remove selected class from all cards
-                    document.querySelectorAll('.strategy-card').forEach(c => c.classList.remove('selected'));
-                    
-                    // Add selected class to clicked card
-                    this.classList.add('selected');
-                    
-                    // Update strategy
-                    const strategy = this.dataset.strategy;
-                    appData.settings.strategy = strategy;
-                    saveData();
-                    updateAllDisplays();
-                    
-                    // Show immediate feedback
-                    updateCurrentFocus();
-                    generatePlan();
-                });
+            // Set default strategy
+            document.getElementById('strategy').value = appData.settings.strategy;
+            document.getElementById('strategy').addEventListener('change', function() {
+                appData.settings.strategy = this.value;
+                saveData();
+                updateAllDisplays();
             });
-            
-            // Set initial selected strategy
-            const currentStrategy = appData.settings.strategy;
-            document.querySelector(`[data-strategy="${currentStrategy}"]`)?.classList.add('selected');
         });
 
-        // Calculate and compare all strategies
-        function calculateStrategies() {
-            if (appData.cards.length === 0) {
-                alert('Please add your credit cards first to compare strategies.');
-                return;
-            }
-
-            const strategies = ['avalanche', 'snowball', 'personal-first'];
-            const results = {};
-            
-            strategies.forEach(strategy => {
-                results[strategy] = simulateStrategy(strategy);
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(function(registration) {
+                        console.log('SW registered: ', registration);
+                    }, function(registrationError) {
+                        console.log('SW registration failed: ', registrationError);
+                    });
             });
-            
-            displayStrategyComparison(results);
-        }
-
-        // Simulate a debt elimination strategy
-        function simulateStrategy(strategy) {
-            // Create deep copy of cards for simulation
-            let cards = appData.cards.map(card => ({...card})).filter(card => card.balance > 0);
-            const availableExtra = calculateAvailableForDebt();
-            
-            if (availableExtra < 0) {
-                return {
-                    months: 'N/A',
-                    totalInterest: 'N/A',
-                    totalPaid: 'N/A',
-                    firstCardPaidOff: 'N/A',
-                    error: 'Insufficient budget - increase income or reduce expenses'
-                };
-            }
-
-            let month = 0;
-            let totalInterest = 0;
-            let firstCardPaidOff = null;
-            let monthlyPayments = [];
-
-            while (cards.length > 0 && month < 120) { // Max 10 years
-                month++;
-                
-                // Sort cards based on strategy
-                let sortedCards;
-                if (strategy === 'avalanche') {
-                    sortedCards = [...cards].sort((a, b) => b.apr - a.apr);
-                } else if (strategy === 'snowball') {
-                    sortedCards = [...cards].sort((a, b) => a.balance - b.balance);
-                } else if (strategy === 'personal-first') {
-                    const personalCards = cards.filter(card => card.type === 'personal');
-                    const businessCards = cards.filter(card => card.type === 'business');
-                    
-                    if (personalCards.length > 0) {
-                        const sortedPersonal = personalCards.sort((a, b) => b.apr - a.apr);
-                        const sortedBusiness = businessCards.sort((a, b) => b.apr - a.apr);
-                        sortedCards = [...sortedPersonal, ...sortedBusiness];
-                    } else {
-                        sortedCards = [...cards].sort((a, b) => b.apr - a.apr);
-                    }
-                }
-
-                const focusCard = sortedCards[0];
-                let monthlyInterestTotal = 0;
-
-                // Calculate interest and make payments for all cards
-                cards.forEach(card => {
-                    const monthlyInterest = card.balance * (card.apr / 100) / 12;
-                    monthlyInterestTotal += monthlyInterest;
-                    totalInterest += monthlyInterest;
-
-                    if (card === focusCard) {
-                        // Focus card gets minimum + extra payment
-                        const totalPayment = card.minPayment + availableExtra;
-                        const principalPayment = totalPayment - monthlyInterest;
-                        card.balance = Math.max(0, card.balance - principalPayment);
-                    } else {
-                        // Other cards get minimum payment only
-                        const principalPayment = card.minPayment - monthlyInterest;
-                        card.balance = Math.max(0, card.balance - principalPayment);
-                    }
-                });
-
-                // Track first card paid off
-                const paidOffThisMonth = cards.filter(card => card.balance <= 0);
-                if (paidOffThisMonth.length > 0 && !firstCardPaidOff) {
-                    firstCardPaidOff = month;
-                }
-
-                // Remove paid off cards
-                cards = cards.filter(card => card.balance > 0);
-
-                monthlyPayments.push({
-                    month: month,
-                    focusCard: focusCard.name,
-                    interest: monthlyInterestTotal,
-                    remainingCards: cards.length
-                });
-            }
-
-            const totalMinPayments = appData.cards.reduce((sum, card) => sum + card.minPayment, 0);
-            const totalPaid = (totalMinPayments + availableExtra) * month + totalInterest;
-
-            return {
-                months: month,
-                totalInterest: totalInterest,
-                totalPaid: totalPaid,
-                firstCardPaidOff: firstCardPaidOff,
-                monthlyPayments: monthlyPayments
-            };
-        }
-
-        // Display strategy comparison
-        function displayStrategyComparison(results) {
-            const comparisonDiv = document.getElementById('strategyComparison');
-            
-            // Find the best strategy (lowest total interest)
-            let bestStrategy = null;
-            let lowestInterest = Infinity;
-            
-            Object.keys(results).forEach(strategy => {
-                if (typeof results[strategy].totalInterest === 'number' && results[strategy].totalInterest < lowestInterest) {
-                    lowestInterest = results[strategy].totalInterest;
-                    bestStrategy = strategy;
-                }
-            });
-
-            const strategyNames = {
-                'avalanche': 'Debt Avalanche',
-                'snowball': 'Debt Snowball', 
-                'personal-first': 'Personal First'
-            };
-
-            comparisonDiv.innerHTML = `
-                <h4>📊 Strategy Comparison Results</h4>
-                <div class="strategy-metrics">
-                    ${Object.keys(results).map(strategy => {
-                        const result = results[strategy];
-                        const isBest = strategy === bestStrategy;
-                        
-                        if (result.error) {
-                            return `
-                                <div class="metric-item" style="border-color: #dc3545;">
-                                    <div class="metric-value-large" style="color: #dc3545;">⚠️</div>
-                                    <div class="metric-label-small">${strategyNames[strategy]}</div>
-                                    <div style="color: #dc3545; font-size: 0.8em; margin-top: 5px;">${result.error}</div>
-                                </div>
-                            `;
-                        }
-                        
-                        return `
-                            <div class="metric-item ${isBest ? 'best-strategy' : ''}" style="${isBest ? 'border-color: #28a745;' : ''}">
-                                <div class="metric-value-large ${isBest ? '' : ''}" style="${isBest ? 'color: #28a745;' : ''}">
-                                    ${result.months} mo
-                                    ${isBest ? ' 🏆' : ''}
-                                </div>
-                                <div class="metric-label-small">${strategyNames[strategy]}</div>
-                                <div style="font-size: 0.8em; margin-top: 5px;">
-                                    Interest: ${result.totalInterest.toLocaleString(undefined, {maximumFractionDigits: 0})}
-                                </div>
-                                ${result.firstCardPaidOff ? `<div style="font-size: 0.8em; color: #666;">First payoff: Month ${result.firstCardPaidOff}</div>` : ''}
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-                
-                <table class="strategy-comparison-table">
-                    <thead>
-                        <tr>
-                            <th>Strategy</th>
-                            <th>Total Months</th>
-                            <th>Total Interest</th>
-                            <th>First Card Paid Off</th>
-                            <th>Interest Savings vs Minimum</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${Object.keys(results).map(strategy => {
-                            const result = results[strategy];
-                            const isBest = strategy === bestStrategy;
-                            const minPaymentInterest = calculateMinimumPaymentInterest();
-                            const savings = minPaymentInterest - result.totalInterest;
-                            
-                            if (result.error) {
-                                return `
-                                    <tr>
-                                        <td><strong>${strategyNames[strategy]}</strong></td>
-                                        <td colspan="4" style="color: #dc3545;">${result.error}</td>
-                                    </tr>
-                                `;
-                            }
-                            
-                            return `
-                                <tr class="${isBest ? 'best-strategy' : ''}">
-                                    <td><strong>${strategyNames[strategy]} ${isBest ? '🏆' : ''}</strong></td>
-                                    <td>${result.months}</td>
-                                    <td>${result.totalInterest.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
-                                    <td>${result.firstCardPaidOff ? `Month ${result.firstCardPaidOff}` : 'N/A'}</td>
-                                    <td style="color: #28a745; font-weight: bold;">${savings.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
-                                </tr>
-                            `;
-                        }).join('')}
-                    </tbody>
-                </table>
-                
-                ${bestStrategy ? `
-                    <div style="background: #d4edda; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #28a745;">
-                        <strong>💡 Recommendation:</strong> The <strong>${strategyNames[bestStrategy]}</strong> method will save you the most money and get you debt-free fastest. 
-                        ${bestStrategy !== appData.settings.strategy ? `<button class="btn" onclick="selectStrategy('${bestStrategy}')" style="margin-left: 10px;">Switch to ${strategyNames[bestStrategy]}</button>` : ''}
-                    </div>
-                ` : ''}
-            `;
-            
-            comparisonDiv.style.display = 'block';
-        }
-
-        // Calculate minimum payment interest (rough estimate)
-        function calculateMinimumPaymentInterest() {
-            // Simplified calculation - assumes minimum payments only
-            let totalInterest = 0;
-            appData.cards.forEach(card => {
-                if (card.balance > 0 && card.apr > 0) {
-                    // Rough estimate: if paying minimum only, it takes ~10-15 years typically
-                    const yearsToPayoff = 12; // Conservative estimate
-                    const monthlyInterest = card.balance * (card.apr / 100) / 12;
-                    totalInterest += monthlyInterest * yearsToPayoff * 12;
-                }
-            });
-            return totalInterest;
-        }
-
-        // Select strategy from comparison
-        function selectStrategy(strategy) {
-            appData.settings.strategy = strategy;
-            saveData();
-            
-            // Update UI
-            document.querySelectorAll('.strategy-card').forEach(c => c.classList.remove('selected'));
-            document.querySelector(`[data-strategy="${strategy}"]`)?.classList.add('selected');
-            
-            updateAllDisplays();
-            alert(`Switched to ${strategy === 'avalanche' ? 'Debt Avalanche' : strategy === 'snowball' ? 'Debt Snowball' : 'Personal First'} strategy!`);
         }
     </script>
 </body>
